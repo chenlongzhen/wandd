@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
-import sys
+import sys, os
 sys.path.append("..")
 from util.deep import deep_net,wide_net
 from util.reader import *
@@ -16,14 +16,10 @@ numeric_para = None
 
 wide_para = [(10000,"string","iid_imp"),(10000,"stringList","iid_clked")]
 
-
-
 def get_columns(paras):
 
     column = [col[-1] for col in paras]
     return column
-
-
 
 # embedding func ======================================
 def embedding(num_size, num_dim, name="embedding"):
@@ -194,33 +190,31 @@ def build_wide(wide_value):
 
 def build_deep(emb_value, onehot_value, numeric_value = None):
 
-    with tf.device("/gpu:1"):
-        deep_input_list = []
+    deep_input_list = []
 
-        # embedding op 
-        
-        emb_list = multiEmbedding(embedding_para)
-        
-        lookup_emb = get_emb(emb_value,emb_list, embedding_para)
-        deep_input_list.append(lookup_emb)
-        
-        # onehot op
-        onehot_emb = get_onehot(onehot_value,onehot_para)
-        deep_input_list.append(onehot_emb)
-        
-        # numeric op
-        if numeric_value:
-            numeric_emb = get_numeric(numeric_value,numeric_para)
-            deep_input_list.append(numeric_emb)
-        
-        
-        # concat 
-        deep_input = tf.concat(deep_input_list, axis = 1 ) 
-        
-    with tf.device("/gpu:0"):
-        #deep net
-        deep_logits = deep_net(deep_input,mode = "train")
-        return deep_logits
+    # embedding op 
+    
+    emb_list = multiEmbedding(embedding_para)
+    
+    lookup_emb = get_emb(emb_value,emb_list, embedding_para)
+    deep_input_list.append(lookup_emb)
+    
+    # onehot op
+    onehot_emb = get_onehot(onehot_value,onehot_para)
+    deep_input_list.append(onehot_emb)
+    
+    # numeric op
+    if numeric_value:
+        numeric_emb = get_numeric(numeric_value,numeric_para)
+        deep_input_list.append(numeric_emb)
+    
+    
+    # concat 
+    deep_input = tf.concat(deep_input_list, axis = 1 ) 
+    
+    #deep net
+    deep_logits = deep_net(deep_input,mode = "train")
+    return deep_logits
 
 
 ####################################
@@ -236,8 +230,10 @@ with tf.name_scope("INPUT") as scope, tf.device("/cpu:0"):
 
 # deep net 
 with tf.name_scope("deep_logits") as scope:
-    deep_logits = build_deep(emb_value, onehot_value, numeric_value = None)
-    tf.summary.histogram(scope,deep_logits)
+
+    with tf.device("/gpu:0"):
+        deep_logits = build_deep(emb_value, onehot_value, numeric_value = None)
+        tf.summary.histogram(scope,deep_logits)
 
 
 # wide net
@@ -247,18 +243,14 @@ with tf.name_scope("wide_logits") as scope:
     tf.summary.histogram(scope,wide_logits)
 
 # combine
-print(deep_logits)
-print(wide_logits)
-with tf.name_scope("add_logits") as scope, tf.device("/cpu:0"):
+with tf.device("/cpu:0"):
+
     logits = tf.add(deep_logits , wide_logits)
-    print("logits")
-    print(logits)
-    tf.summary.histogram(scope,logits)
+    tf.summary.histogram("logits",logits)
 
     # predict
     predictions = tf.sigmoid(logits, name='prediction')
-    print("logits")
-    print(predictions)
+    tf.summary.histogram('predictions', predictions)
 
     # train loss
     label = tf.string_to_number(label,out_type = tf.int32)
@@ -331,7 +323,7 @@ def main(_):
     train_steps = 100
     test_steps = 100
     COLUMNS = ['label', 'browser', 'city', 'creativeid', 'iid_clked', 'iid_imp', 'itemtype', 'network', 'operation', 'os', 'province', 'psid_abs', 'pvday', 'pvhour', 'read', 'sessionid', 'source', 'userid']
-    model_dir = "../moder_dir/"
+    model_dir = "../model_dir_wd/"
 
     emb_col = get_columns(embedding_para)
     onehot_col = get_columns(onehot_para)
@@ -346,25 +338,29 @@ def main(_):
     data_reader = reader("/data/new/dis_with_wide/train", "/data/new/dis_with_wide/test", COLUMNS, numeric_col, 10000)
 
     global mode
+    # restore data >
     saver = tf.train.Saver()
 
     config = tf.ConfigProto()
     config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
 #    config.gpu_options.allocator_type = 'BFC'
-    with tf.Session(config = config) as sess:
-        tf.global_variables_initializer().run()
+
+    init = tf.initialize_all_variables()
+    sm = tf.train.SessionManager()
+    # try to find the latest checkpoint in my_checkpoint_dir, then create a session with that restored
+    # if no such checkpoint, then call the init_op after creating a new session
+    with sm.prepare_session("", init_op=init, saver=saver, checkpoint_dir=model_dir, config = config) as sess:
+        tf.train.write_graph(sess.graph_def, model_dir, 'widendeep.pbtxt')
+    #with tf.Session(config = config) as sess:
+
+        #tf.global_variables_initializer().run()
         tf.local_variables_initializer().run()
         train_writer = tf.summary.FileWriter(model_dir + 'train',
                                                       sess.graph)
         test_writer = tf.summary.FileWriter(model_dir + 'test')
 
-        #sess.run(lookup_emb,feed_dict={input_value: "clz"})
-        #print(sess.run(lookup_emb,feed_dict={emb_value: [["clz","3"],["1","2"]]}))
-        #print(sess.run(onehot_emb,feed_dict={onehot_value: [["clz","3"],["1","2"]]}))
-        #print(sess.run(numeric_emb,feed_dict={numeric_value: [["1","3"],["1","2"]]}))
-
-
         for epoch in range(1000):
+            #print("[INFO] step:{}".format(tf.global_step()))
             
             train_auc_list = []
             train_loss_list = []
@@ -373,33 +369,25 @@ def main(_):
 
             for step in range(train_steps):
 
-                #saver.restore(sess, '../model_dir/my-model')
-                #print("[TRAIN] step: {}".format(step+1)) 
-
                 emb_data, onehot_data, wide_data, label_data = data_reader.get_train_batch(emb_col, onehot_col, numeric_col, wide_col)
                 
                 #merge_summary,  _ = sess.run([merged, train_op],feed_dict={emb_value: [["clz","3"],["1","2"]], onehot_value: [["clz","3"],["1","2"]] , numeric_value: [["1","3"],["1","2"]], label: [["1"],["1"]], wide_value: [["1","3"],["1","2"]]})            
                 
                 train_feed = {emb_value: emb_data, onehot_value: onehot_data,label: label_data, wide_value: wide_data}
-                #print("train_feed ======================")
-                #print(train_feed)
                 merge_summary,  _ , auc, loss= sess.run([merged, train_op, auc_op, training_loss],feed_dict=train_feed)            
                 train_writer.add_summary(merge_summary, (epoch+1) * train_steps +  (step+1) )
 
                 train_auc_list.append(auc[0])
                 train_loss_list.append(loss)
                 
-
             # save 
-            saver.save(sess, model_dir + 'my-model', global_step=epoch)
-            tf.train.write_graph(sess.graph_def, model_dir, 'widendeep.pbtxt')
+            saver.save(sess, model_dir + 'my-model', global_step=None)
 
             # get train AUC
             mean_auc = np.mean(train_auc_list)
             mean_loss    = np.mean(train_loss_list)
             print("[TRAIN metic] range: {}, loss: {} ".format(epoch,mean_loss))
             print("[TRAIN metic] range: {}, auc: {} ".format(epoch,mean_auc))
-            # test
 
             for step in range(test_steps):
 
@@ -407,11 +395,8 @@ def main(_):
                 emb_data, onehot_data, wide_data, label_data = data_reader.get_test_batch(emb_col, onehot_col, numeric_col, wide_col)
 
                 test_feed = {emb_value: emb_data, onehot_value: onehot_data,label: label_data, wide_value: wide_data}
-                #print("test_feed ======================")
-                #print(test_feed)
-
                 merge_summary, pred, loss, auc = sess.run([merged, predictions, training_loss, auc_op], feed_dict = test_feed)
-                test_writer.add_summary(merge_summary, (epoch+1) * test_steps + (step+1) )
+                test_writer.add_summary(merge_summary, (epoch+1) * train_steps +  (step+1) )
                 
                 test_auc_list.append(auc[0])
                 test_loss_list.append(loss)
@@ -422,4 +407,3 @@ def main(_):
             print("[test metic] range: {}, auc: {} ".format(epoch,mean_auc))
 
 main(1)
-
