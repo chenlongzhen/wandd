@@ -81,4 +81,4 @@ def wide_net(wide_input, w_number ,mode):
         if mode == "train":
             tf.summary.scalar("%s/fraction_of_zero_values" % dnn_hidden_scope.name, nn.zero_fraction(wide_logits))
             tf.summary.histogram("%s/activation" % dnn_hidden_scope.name, wide_logits) 
-    return wide_logits
+    return tf.reshape(wide_logits, [-1,1])

@@ -14,7 +14,7 @@ onehot_para = [(41,"string","psid_abs"),(4, "string", "operation"),(20,"string",
 
 numeric_para = None
 
-wide_para = [(20000,"string","iid_imp"),(20000,"stringList","iid_clked")]
+wide_para = [(10000,"string","iid_imp"),(10000,"stringList","iid_clked")]
 
 
 
@@ -163,7 +163,7 @@ def process_wide(input_value, wide_para, name = "wide_process"):
            #     wide_list.append(onehot_emb)
 
         # crossing
-        cross_sparse = _sparse_cross_hashed(cross_list, num_buckets = 100000)
+        cross_sparse = _sparse_cross_hashed(cross_list, num_buckets = 10000)
         print(cross_sparse)
 
         #cross_value = tf.cast(tf.sparse_to_indicator(cross_sparse, vocab_size = 500000), tf.float32)
@@ -186,7 +186,7 @@ def build_wide(wide_value):
         print("wide_emb")
         print(wide_emb)
 
-        wide_logits = wide_net(wide_emb, 140000,mode = "train")
+        wide_logits = wide_net(wide_emb, 40000,mode = "train")
 
         return  wide_logits
        
@@ -194,31 +194,33 @@ def build_wide(wide_value):
 
 def build_deep(emb_value, onehot_value, numeric_value = None):
 
-    deep_input_list = []
+    with tf.device("/gpu:1"):
+        deep_input_list = []
 
-    # embedding op 
-    
-    emb_list = multiEmbedding(embedding_para)
-    
-    lookup_emb = get_emb(emb_value,emb_list, embedding_para)
-    deep_input_list.append(lookup_emb)
-    
-    # onehot op
-    onehot_emb = get_onehot(onehot_value,onehot_para)
-    deep_input_list.append(onehot_emb)
-    
-    # numeric op
-    if numeric_value:
-        numeric_emb = get_numeric(numeric_value,numeric_para)
-        deep_input_list.append(numeric_emb)
-    
-    
-    # concat 
-    deep_input = tf.concat(deep_input_list, axis = 1 ) 
-    
-    #deep net
-    deep_logits = deep_net(deep_input,mode = "train")
-    return deep_logits
+        # embedding op 
+        
+        emb_list = multiEmbedding(embedding_para)
+        
+        lookup_emb = get_emb(emb_value,emb_list, embedding_para)
+        deep_input_list.append(lookup_emb)
+        
+        # onehot op
+        onehot_emb = get_onehot(onehot_value,onehot_para)
+        deep_input_list.append(onehot_emb)
+        
+        # numeric op
+        if numeric_value:
+            numeric_emb = get_numeric(numeric_value,numeric_para)
+            deep_input_list.append(numeric_emb)
+        
+        
+        # concat 
+        deep_input = tf.concat(deep_input_list, axis = 1 ) 
+        
+    with tf.device("/gpu:0"):
+        #deep net
+        deep_logits = deep_net(deep_input,mode = "train")
+        return deep_logits
 
 
 ####################################
@@ -233,7 +235,7 @@ with tf.name_scope("INPUT") as scope, tf.device("/cpu:0"):
 
 
 # deep net 
-with tf.name_scope("deep_logits") as scope, tf.device("/gpu:0"):
+with tf.name_scope("deep_logits") as scope:
     deep_logits = build_deep(emb_value, onehot_value, numeric_value = None)
     tf.summary.histogram(scope,deep_logits)
 
@@ -249,10 +251,14 @@ print(deep_logits)
 print(wide_logits)
 with tf.name_scope("add_logits") as scope, tf.device("/cpu:0"):
     logits = tf.add(deep_logits , wide_logits)
+    print("logits")
+    print(logits)
     tf.summary.histogram(scope,logits)
 
     # predict
     predictions = tf.sigmoid(logits, name='prediction')
+    print("logits")
+    print(predictions)
 
     # train loss
     label = tf.string_to_number(label,out_type = tf.int32)
@@ -271,7 +277,7 @@ with tf.device("/gpu:0"):
     train_op_deep = deep_opt.minimize(
         loss = training_loss,
         global_step=tf.train.get_global_step(),
-        var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_logits*") + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"multiEmbedding*")
+        var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_logits*") + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_model*")
     )
     
 with tf.device("/gpu:1"):
@@ -302,12 +308,13 @@ train_ops = [train_op_deep, train_op_wide]
 train_op = control_flow_ops.group(*train_ops)
 
 print("TRAIN VARIBLES DEEP")
-print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_model*") + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"multiEmbedding*"))
+#print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_model*") + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"multiEmbedding*"))
+print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_logits*") + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"deep_model*"))
 print("TRAIN VARIBLES WIDE")
-print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"wide_model*"))
+print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,"wide_logits*"))
 
 # metric
-with tf.name_scope("metric") as scope, tf.device("/cpu:0"):
+with tf.name_scope("metric") as scope, tf.device("/gpu:0"):
     auc_op = tf.metrics.auc(label,predictions)
     tf.summary.scalar(scope + "AUC", auc_op[0])
     
@@ -336,13 +343,13 @@ def main(_):
 
 
     # read data
-    data_reader = reader("/data/new/dis_with_wide/train", "/data/new/dis_with_wide/test", COLUMNS, numeric_col, 20000)
+    data_reader = reader("/data/new/dis_with_wide/train", "/data/new/dis_with_wide/test", COLUMNS, numeric_col, 10000)
 
     global mode
     saver = tf.train.Saver()
 
     config = tf.ConfigProto()
-    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
 #    config.gpu_options.allocator_type = 'BFC'
     with tf.Session(config = config) as sess:
         tf.global_variables_initializer().run()
