@@ -1,0 +1,272 @@
+2017-09-13 13:11:24.653504: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2017-09-13 13:11:24.653554: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-09-13 13:11:24.653561: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-09-13 13:11:24.653566: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-09-13 13:11:24.653570: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+2017-09-13 13:11:25.137769: I tensorflow/core/common_runtime/gpu/gpu_device.cc:955] Found device 0 with properties: 
+name: Tesla K80
+major: 3 minor: 7 memoryClockRate (GHz) 0.8235
+pciBusID 0000:89:00.0
+Total memory: 11.17GiB
+Free memory: 11.11GiB
+2017-09-13 13:11:25.137836: I tensorflow/core/common_runtime/gpu/gpu_device.cc:976] DMA: 0 
+2017-09-13 13:11:25.137850: I tensorflow/core/common_runtime/gpu/gpu_device.cc:986] 0:   Y 
+2017-09-13 13:11:25.137863: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K80, pci bus id: 0000:89:00.0)
+Tensor("wide_process/Reshape:0", shape=(?, 20000), dtype=float32)
+Tensor("wide_process/Reshape_1:0", shape=(?, 20000), dtype=float32)
+wide_emb
+Tensor("wide_process/concat:0", shape=(?, 40000), dtype=float32)
+Tensor("deep_model/dnn_logits/dense/BiasAdd:0", shape=(?, 1), dtype=float32)
+Tensor("wide_model/dense/BiasAdd:0", shape=(?, 1), dtype=float32)
+TRAIN VARIBLES DEEP
+[<tf.Variable 'deep_model/dnn_hidden_1/dense/kernel:0' shape=(287, 1024) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_hidden_1/dense/bias:0' shape=(1024,) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_hidden_2/dense/kernel:0' shape=(1024, 512) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_hidden_2/dense/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_hidden_3/dense/kernel:0' shape=(512, 256) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_hidden_3/dense/bias:0' shape=(256,) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_logits/dense/kernel:0' shape=(543, 1) dtype=float32_ref>, <tf.Variable 'deep_model/dnn_logits/dense/bias:0' shape=(1,) dtype=float32_ref>, <tf.Variable 'multiEmbedding/embedding/embeddingemb:0' shape=(100, 32) dtype=float32_ref>, <tf.Variable 'multiEmbedding/embedding_1/embeddingemb:0' shape=(100, 32) dtype=float32_ref>, <tf.Variable 'multiEmbedding/embedding_2/embeddingemb:0' shape=(100, 32) dtype=float32_ref>]
+TRAIN VARIBLES WIDE
+[<tf.Variable 'wide_model/dense/kernel:0' shape=(40000, 1) dtype=float32_ref>, <tf.Variable 'wide_model/dense/bias:0' shape=(1,) dtype=float32_ref>]
+[reader] read file: /data/new/dis_with_wide/train/part-00040 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00046 
+[TRAIN metic] range: 0, loss: 0.22870926559 
+[TRAIN metic] range: 0, auc: 0.554234147072 
+[reader] read file: /data/new/dis_with_wide/test/part-00040 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00007 
+[test metic] range: 0, loss: 0.211006984115 
+[test metic] range: 0, auc: 0.613089203835 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00045 
+[TRAIN metic] range: 1, loss: 0.206686109304 
+[TRAIN metic] range: 1, auc: 0.627395153046 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00019 
+[test metic] range: 1, loss: 0.205231457949 
+[test metic] range: 1, auc: 0.633150041103 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00039 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00004 
+[TRAIN metic] range: 2, loss: 0.200114369392 
+[TRAIN metic] range: 2, auc: 0.637341737747 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00030 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00048 
+[test metic] range: 2, loss: 0.199988484383 
+[test metic] range: 2, auc: 0.64067196846 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00009 
+[TRAIN metic] range: 3, loss: 0.20429739356 
+[TRAIN metic] range: 3, auc: 0.643509745598 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00010 
+[test metic] range: 3, loss: 0.21353982389 
+[test metic] range: 3, auc: 0.64508920908 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00034 
+[TRAIN metic] range: 4, loss: 0.206016466022 
+[TRAIN metic] range: 4, auc: 0.646244108677 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00033 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00008 
+[test metic] range: 4, loss: 0.200774237514 
+[test metic] range: 4, auc: 0.647793292999 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00003 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00000 
+[TRAIN metic] range: 5, loss: 0.199962407351 
+[TRAIN metic] range: 5, auc: 0.648842573166 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00021 
+[test metic] range: 5, loss: 0.202510535717 
+[test metic] range: 5, auc: 0.649046301842 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00038 
+[TRAIN metic] range: 6, loss: 0.203167498112 
+[TRAIN metic] range: 6, auc: 0.649626553059 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00035 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00012 
+[test metic] range: 6, loss: 0.199802666903 
+[test metic] range: 6, auc: 0.650325477123 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00048 
+[TRAIN metic] range: 7, loss: 0.200480610132 
+[TRAIN metic] range: 7, auc: 0.650910496712 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00044 
+[test metic] range: 7, loss: 0.19752715528 
+[test metic] range: 7, auc: 0.651266336441 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00002 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00028 
+[TRAIN metic] range: 8, loss: 0.203102231026 
+[TRAIN metic] range: 8, auc: 0.651630401611 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00015 
+[test metic] range: 8, loss: 0.201467216015 
+[test metic] range: 8, auc: 0.651968002319 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00033 
+[TRAIN metic] range: 9, loss: 0.202167630196 
+[TRAIN metic] range: 9, auc: 0.652330577374 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00049 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00013 
+[test metic] range: 9, loss: 0.20032659173 
+[test metic] range: 9, auc: 0.652655184269 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00011 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00006 
+[TRAIN metic] range: 10, loss: 0.203560739756 
+[TRAIN metic] range: 10, auc: 0.653159737587 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00000 
+[test metic] range: 10, loss: 0.203989386559 
+[test metic] range: 10, auc: 0.653678894043 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00049 
+[TRAIN metic] range: 11, loss: 0.199589118361 
+[TRAIN metic] range: 11, auc: 0.654159903526 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00011 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00037 
+[test metic] range: 11, loss: 0.201825469732 
+[test metic] range: 11, auc: 0.654639303684 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00018 
+[TRAIN metic] range: 12, loss: 0.217328935862 
+[TRAIN metic] range: 12, auc: 0.654970228672 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00031 
+[test metic] range: 12, loss: 0.196721464396 
+[test metic] range: 12, auc: 0.655288159847 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00016 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00027 
+[TRAIN metic] range: 13, loss: 0.200644299388 
+[TRAIN metic] range: 13, auc: 0.655621647835 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00002 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00024 
+[test metic] range: 13, loss: 0.206436783075 
+[test metic] range: 13, auc: 0.655690312386 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00017 
+[TRAIN metic] range: 14, loss: 0.201224386692 
+[TRAIN metic] range: 14, auc: 0.655752658844 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00005 
+[test metic] range: 14, loss: 0.200436383486 
+[test metic] range: 14, auc: 0.656042993069 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00021 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00012 
+[TRAIN metic] range: 15, loss: 0.201040014625 
+[TRAIN metic] range: 15, auc: 0.656372249126 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00042 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00023 
+[test metic] range: 15, loss: 0.197748526931 
+[test metic] range: 15, auc: 0.656690061092 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00042 
+[TRAIN metic] range: 16, loss: 0.197153747082 
+[TRAIN metic] range: 16, auc: 0.656916379929 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00045 
+[test metic] range: 16, loss: 0.200866907835 
+[test metic] range: 16, auc: 0.657102406025 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00024 
+[TRAIN metic] range: 17, loss: 0.198690548539 
+[TRAIN metic] range: 17, auc: 0.6573818326 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00003 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00041 
+[test metic] range: 17, loss: 0.195909798145 
+[test metic] range: 17, auc: 0.657707512379 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00001 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00036 
+[TRAIN metic] range: 18, loss: 0.200718596578 
+[TRAIN metic] range: 18, auc: 0.657945811749 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00032 
+[test metic] range: 18, loss: 0.202185064554 
+[test metic] range: 18, auc: 0.65819144249 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00007 
+[TRAIN metic] range: 19, loss: 0.198605358601 
+[TRAIN metic] range: 19, auc: 0.658423900604 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00034 
+[test metic] range: 19, loss: 0.198342785239 
+[test metic] range: 19, auc: 0.658530890942 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00030 
+[TRAIN metic] range: 20, loss: 0.212132155895 
+[TRAIN metic] range: 20, auc: 0.658628940582 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00047 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00046 
+[test metic] range: 20, loss: 0.19849550724 
+[test metic] range: 20, auc: 0.658868074417 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00008 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00020 
+[TRAIN metic] range: 21, loss: 0.197778299451 
+[TRAIN metic] range: 21, auc: 0.65905970335 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00016 
+[test metic] range: 21, loss: 0.202487885952 
+[test metic] range: 21, auc: 0.659263789654 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00032 
+[TRAIN metic] range: 22, loss: 0.203653812408 
+[TRAIN metic] range: 22, auc: 0.659499883652 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00004 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00022 
+[test metic] range: 22, loss: 0.197274401784 
+[test metic] range: 22, auc: 0.659668982029 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00005 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00013 
+[TRAIN metic] range: 23, loss: 0.204656884074 
+[TRAIN metic] range: 23, auc: 0.659849226475 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00018 
+[test metic] range: 23, loss: 0.205069884658 
+[test metic] range: 23, auc: 0.65983492136 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00031 
+[TRAIN metic] range: 24, loss: 0.200135573745 
+[TRAIN metic] range: 24, auc: 0.659874498844 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00043 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00006 
+[test metic] range: 24, loss: 0.199197947979 
+[test metic] range: 24, auc: 0.66002702713 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/train/part-00010 
+[TRAIN metic] range: 25, loss: 0.200764983892 
+[TRAIN metic] range: 25, auc: 0.660192191601 
+Iteration is stopped.
+[reader] read file: /data/new/dis_with_wide/test/part-00038
