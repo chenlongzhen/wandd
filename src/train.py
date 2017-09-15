@@ -14,7 +14,7 @@ onehot_para = [(41,"string","psid_abs"),(4, "string", "operation"),(20,"string",
 
 numeric_para = None
 
-wide_para = [(10000,"string","iid_imp"),(10000,"stringList","iid_clked")]
+wide_para = [(20000,"string","iid_imp"),(20000,"stringList","iid_clked")]
 
 def get_columns(paras):
 
@@ -137,18 +137,29 @@ def process_wide(input_value, wide_para, name = "wide_process"):
     with tf.name_scope(name) as scope:
         wide_list = []
         cross_list = []
+        fix_add_value = 0 # for concat  
         for i,wide_para in enumerate(wide_para):
             depth = wide_para[0]  
             col_type = wide_para[1]  
 
             if col_type == "stringList" or True:
                 sparse_value = _process_list_column(input_value[:,i], depth)
+
+                fix_sparse_value = tf.SparseTensor(
+                    indices = sparse_value.indices,
+                    values = sparse_value.values + fix_add_value,
+                    dense_shape = sparse_value.dense_shape)
+
                 #wide_value, sparse_value = _process_list_column(input_value[:,i], depth)
                 #wide_value = tf.reshape(wide_value, [-1, depth])
                 print("wide_value")
-                print(sparse_value)
+                print(fix_sparse_value)
+
                 wide_list.append(sparse_value)
                 cross_list.append(sparse_value)
+
+                fix_add_value = depth
+                print("add {}".format(fix_add_value))
            # else:
            #     wide_value = tf.string_to_hash_bucket_fast(input_value[:,i], depth)
            #     print(wide_value)
@@ -159,13 +170,18 @@ def process_wide(input_value, wide_para, name = "wide_process"):
            #     wide_list.append(onehot_emb)
 
         # crossing
-        cross_sparse = _sparse_cross_hashed(cross_list, num_buckets = 10000)
+        cross_sparse = _sparse_cross_hashed(cross_list, num_buckets = 3000000)
+        fix_cross_sparse = tf.SparseTensor(
+                    indices = cross_sparse.indices,
+                    values = cross_sparse.values + 40000,
+                    dense_shape = cross_sparse.dense_shape)
+                
         print(cross_sparse)
 
         #cross_value = tf.cast(tf.sparse_to_indicator(cross_sparse, vocab_size = 500000), tf.float32)
         #cross_value = tf.reshape(cross_value, [-1, 500000])
         wide_list.append(cross_sparse)
-        #print(cross_value)
+        print(wide_list)
 
         wide_sparse = tf.sparse_concat(sp_inputs = wide_list, axis = 1)
 
@@ -182,10 +198,9 @@ def build_wide(wide_value):
         print("wide_emb")
         print(wide_emb)
 
-        wide_logits = wide_net(wide_emb, 40000,mode = "train")
+        wide_logits = wide_net(wide_emb, 3040000,mode = "train")
 
         return  wide_logits
-       
 
 
 def build_deep(emb_value, onehot_value, numeric_value = None):
@@ -374,6 +389,7 @@ def main(_):
                 #merge_summary,  _ = sess.run([merged, train_op],feed_dict={emb_value: [["clz","3"],["1","2"]], onehot_value: [["clz","3"],["1","2"]] , numeric_value: [["1","3"],["1","2"]], label: [["1"],["1"]], wide_value: [["1","3"],["1","2"]]})            
                 
                 train_feed = {emb_value: emb_data, onehot_value: onehot_data,label: label_data, wide_value: wide_data}
+
                 merge_summary,  _ , auc, loss= sess.run([merged, train_op, auc_op, training_loss],feed_dict=train_feed)            
                 train_writer.add_summary(merge_summary, (epoch+1) * train_steps +  (step+1) )
 
