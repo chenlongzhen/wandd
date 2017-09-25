@@ -49,8 +49,10 @@ class reader:
         onehot_data = data[onehot_col].values
         wide_data = np.reshape(data[wide_col].values, (-1,len(wide_col)))
         label_data = np.reshape(data['label'].values,(-1,1))
+        # psid_data
+        # psid_data = np.reshape(data['psid_abs'].values,(-1,1))
 
-        return emb_data, onehot_data, wide_data, label_data
+        return emb_data, onehot_data, wide_data, label_data   # ,psid_data
 
     def get_test_batch(self, emb_col, onehot_col, numeric_col, wide_col):
 
@@ -68,8 +70,10 @@ class reader:
         onehot_data = data[onehot_col].values
         wide_data = np.reshape(data[wide_col].values, (-1,len(wide_col)))
         label_data = np.reshape(data['label'].values,(-1,1))
+        # psid_data
+        #psid_data = np.reshape(data['psid_abs'].values,(-1,1))
 
-        return emb_data, onehot_data, wide_data, label_data
+        return emb_data, onehot_data, wide_data, label_data #,psid_data
 
 
     def get_files(self, file_dir, shuffle = True):

@@ -240,6 +240,7 @@ with tf.name_scope("INPUT") as scope, tf.device("/cpu:0"):
     if numeric_para :
         numeric_value = tf.placeholder(tf.string, shape = [None, len(numeric_para)], name = "numeric_placeholder")
     wide_value = tf.placeholder(tf.string, shape = [None,len(wide_para)], name = "wide_placeholder")
+    #psid_value = tf.placeholder(tf.string, shape = [None,1], name = "psid_placeholder")
     label = tf.placeholder(tf.string, shape = [None, 1], name = "label")
 
 
@@ -247,7 +248,7 @@ with tf.name_scope("INPUT") as scope, tf.device("/cpu:0"):
 with tf.name_scope("deep_logits") as scope:
 
     with tf.device("/gpu:0"):
-        deep_logits = build_deep(emb_value, onehot_value, numeric_value = None)
+        deep_logits = build_deep(emb_value, onehot_value,numeric_value = None)
         tf.summary.histogram(scope,deep_logits)
 
 
@@ -338,15 +339,28 @@ def main(_):
     train_steps = 100
     test_steps = 100
     COLUMNS = ['label', 'browser', 'city', 'creativeid', 'iid_clked', 'iid_imp', 'itemtype', 'network', 'operation', 'os', 'province', 'psid_abs', 'pvday', 'pvhour', 'read', 'sessionid', 'source', 'userid']
-    model_dir = "../model_dir_wd/"
+    model_dir = "../model_test/"
 
     emb_col = get_columns(embedding_para)
+
+    print("emb_col")
+    print(emb_col)
+
     onehot_col = get_columns(onehot_para)
+    print("onehot_col")
+    print(onehot_col)
+
     if numeric_para:
         numeric_col = get_columns(numeric_para)
     else:
         numeric_col = None
+
+    print("numeric_col")
+    print(numeric_col)
     wide_col = get_columns(wide_para)
+
+    print("wide_col")
+    print(wide_col)
 
 
     # read data
@@ -390,14 +404,17 @@ def main(_):
                 
                 train_feed = {emb_value: emb_data, onehot_value: onehot_data,label: label_data, wide_value: wide_data}
 
-                merge_summary,  _ , auc, loss= sess.run([merged, train_op, auc_op, training_loss],feed_dict=train_feed)            
+                merge_summary,  _ , auc, loss= sess.run([merged, train_op, auc_op, training_loss],feed_dict=train_feed)
                 train_writer.add_summary(merge_summary, (epoch+1) * train_steps +  (step+1) )
 
                 train_auc_list.append(auc[0])
                 train_loss_list.append(loss)
                 
             # save 
-            saver.save(sess, model_dir + 'my-model', global_step=None)
+            #saver.save(sess, model_dir + 'my-model', global_step=None)
+            checkpoint_path = saver.save(sess, model_dir + 'my-model', global_step=(epoch+1) * train_steps +  (step+1), latest_filename="checkpoint_state")
+            print("checkpoint_path: {}".format(checkpoint_path))
+
 
             # get train AUC
             mean_auc = np.mean(train_auc_list)
@@ -409,6 +426,7 @@ def main(_):
 
 
                 emb_data, onehot_data, wide_data, label_data = data_reader.get_test_batch(emb_col, onehot_col, numeric_col, wide_col)
+
 
                 test_feed = {emb_value: emb_data, onehot_value: onehot_data,label: label_data, wide_value: wide_data}
                 merge_summary, pred, loss, auc = sess.run([merged, predictions, training_loss, auc_op], feed_dict = test_feed)

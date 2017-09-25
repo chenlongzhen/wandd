@@ -1,0 +1,2 @@
+model_checkpoint_path: "model_dir_wd_psidmy-model"
+all_model_checkpoint_paths: "model_dir_wd_psidmy-model"

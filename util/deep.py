@@ -1,7 +1,7 @@
 #!/bin/env python
 import tensorflow as tf
 from tensorflow.python.ops import nn
-def deep_net(deep_input, mode):
+def deep_net(deep_input,mode):
     '''
     deep nets
     '''
@@ -41,10 +41,13 @@ def deep_net(deep_input, mode):
                 tf.summary.scalar("%s/fraction_of_zero_values" % dnn_hidden_scope.name, nn.zero_fraction(deep_hidden_3))
                 tf.summary.histogram("%s/activation" % dnn_hidden_scope.name, deep_hidden_3)
 
-        deep_hidden_3_con = tf.concat([deep_hidden_3,deep_input],1) # high way
-        with tf.variable_scope('dnn_logits', values = (deep_hidden_3_con,)) as dnn_logits_scope:
+        #deep_hidden_3_con = tf.concat([deep_hidden_3,deep_input],1) # high way
+        #hash_value = tf.string_to_hash_bucket_fast(psid_value[:,0],42)
+        #psid_value = tf.one_hot(hash_value, 42)
+        #deep_hidden_3_con = tf.concat([deep_hidden_3,psid_value],1)
+        with tf.variable_scope('dnn_logits', values = (deep_hidden_3,)) as dnn_logits_scope:
             deep_logits = tf.layers.dense(
-                deep_hidden_3_con, 1, activation = None, bias_initializer = None)
+                deep_hidden_3, 1, activation = None, bias_initializer = None)
             if mode == "train":
                 tf.summary.scalar("%s/fraction_of_zero_values" % dnn_logits_scope.name, nn.zero_fraction(deep_logits))
                 tf.summary.histogram("%s/activation" % dnn_logits_scope.name, deep_logits)
