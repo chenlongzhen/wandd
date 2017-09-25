@@ -8,6 +8,7 @@ from util.deep import deep_net,wide_net
 from util.reader import *
 from tqdm import tqdm
 from tensorflow.python.ops.sparse_ops import  _sparse_cross_hashed
+from tensorflow.python import debug as tf_debug
 
 embedding_para = [(100,32,"string","creativeid"),(100,32,"string","sessionid"),(100,32,"string","userid")]
 onehot_para = [(41,"string","psid_abs"),(4, "string", "operation"),(20,"string","itemtype"),(10,"string","pvday"), (24, "int", "pvhour"), (15, "string", "network"), (2, "int","read"), (25, "string", "browser"), (2, "string", "source"), (12, "string", "os"), (36, "string", "province")]
@@ -339,7 +340,7 @@ def main(_):
     train_steps = 100
     test_steps = 100
     COLUMNS = ['label', 'browser', 'city', 'creativeid', 'iid_clked', 'iid_imp', 'itemtype', 'network', 'operation', 'os', 'province', 'psid_abs', 'pvday', 'pvhour', 'read', 'sessionid', 'source', 'userid']
-    model_dir = "../model_test/"
+    model_dir = "../model_dir/"
 
     emb_col = get_columns(embedding_para)
 
@@ -378,9 +379,13 @@ def main(_):
     sm = tf.train.SessionManager()
     # try to find the latest checkpoint in my_checkpoint_dir, then create a session with that restored
     # if no such checkpoint, then call the init_op after creating a new session
-    with sm.prepare_session("", init_op=init, saver=saver, checkpoint_dir=model_dir, config = config) as sess:
-        tf.train.write_graph(sess.graph_def, model_dir, 'widendeep.pbtxt')
+    sess = sm.prepare_session("", init_op=init, saver=saver, checkpoint_dir=model_dir, config = config)
+    #    tf.train.write_graph(sess.graph_def, model_dir, 'widendeep.pbtxt')
     #with tf.Session(config = config) as sess:
+    #with tf_debug.LocalCLIDebugWrapperSession(sess, ui_type=FLAGS.ui_type) as sess:    
+
+    #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+    with sess:
 
         #tf.global_variables_initializer().run()
         tf.local_variables_initializer().run()
